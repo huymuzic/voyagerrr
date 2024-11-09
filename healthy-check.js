@@ -13,5 +13,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-await fetch('http://localhost:8000/healthy');
-console.log('Healthy check passed.')
+await fetch("http://3.25.113.1:8000/healthy");
+console.log("Healthy check passed.");

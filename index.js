@@ -55,10 +55,32 @@ if(isRouteEnabled("index", "stats")) {
 
 buildRoutes(app);
 
-if(isRouteEnabled("index", "docs")) {
-    app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-        customSiteTitle: "Voyager APIs"
-    }))
+
+if (isRouteEnabled("index", "docs")) {
+    app.use('/', swaggerUi.serve, (req, res) => {
+        // Customize Swagger UI with the chatbox script
+        const html = swaggerUi.generateHTML(swaggerSpec, {
+            customSiteTitle: "Voyager APIs"
+        });
+
+        // Append the chatbox script to the generated HTML
+        const chatboxScript = `
+            <script>
+                (async function() {
+                    const chatbox_script = await (await fetch("http://3.25.113.1:8000/chatbox")).blob();
+                    const chatbox_url = URL.createObjectURL(chatbox_script);
+                    const script_elem = document.createElement('script');
+                    script_elem.src = chatbox_url;
+                    document.body.append(script_elem);
+                })();
+            </script>
+        `;
+
+        // Inject the chatbox script before closing the body tag
+        const modifiedHtml = html.replace('</body>', `${chatboxScript}</body>`);
+
+        res.send(modifiedHtml);
+    });
 }
 
 const PORT = process.env.PORT || 8000
